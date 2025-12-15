@@ -1,0 +1,104 @@
+1.UDP-SENDER
+-----------------------------------------------------
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package udpaddc;
+import java.net.*;
+import java.util.Scanner;
+/**
+ *
+ * @author Administrator
+ */
+public class UDPAddSender {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        // TODO code application logic here
+        
+        try
+        {
+            DatagramSocket clientSocket = new DatagramSocket();
+            InetAddress serverAddress = InetAddress.getByName("localhost");
+            
+            Scanner scanner = new Scanner(System.in);
+
+            // Input numbers
+            System.out.print("Enter first number: ");
+            int num1 = scanner.nextInt();
+            System.out.print("Enter second number: ");
+            int num2 = scanner.nextInt();
+            
+             byte[] sendBuffer = String.valueOf(num1).getBytes();
+             DatagramPacket sendPacket = new DatagramPacket(sendBuffer, sendBuffer.length, serverAddress, 5000);
+            clientSocket.send(sendPacket);
+            
+            sendBuffer = String.valueOf(num2).getBytes();
+            sendPacket = new DatagramPacket(sendBuffer, sendBuffer.length, serverAddress, 5000);
+            clientSocket.send(sendPacket);
+            
+            
+
+        }
+        catch(Exception e)
+        {
+            
+        }
+    }
+    
+}
+------------------------------------------------------------------------------------------------------------------------
+2.UDP-RECEIVER
+----------------
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package udpaddc;
+import java.net.*;
+
+/**
+ *
+ * @author Administrator
+ */
+public class UDPReceiver {
+    public static void main(String[] args) {
+        // TODO code application logic here
+           try
+        {
+               DatagramSocket serverSocket = new DatagramSocket(5000);
+              byte[] receiveBuffer = new byte[1024];
+            byte[] sendBuffer;
+               
+               
+             
+                
+            DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+            serverSocket.receive(receivePacket);
+            String str1 = new String(receivePacket.getData(), 0, receivePacket.getLength());
+            int num1 = Integer.parseInt(str1);
+            
+            receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
+            serverSocket.receive(receivePacket);
+            String str2 = new String(receivePacket.getData(), 0, receivePacket.getLength());
+            int num2 = Integer.parseInt(str2);
+            
+              // Perform addition
+            int sum = num1 + num2;
+            String result = "Sum is: " + sum;
+            
+            System.out.println(result);
+                
+        }
+        catch(Exception e)
+        {
+            
+        }
+    }
+    
+}
