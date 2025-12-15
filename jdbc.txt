@@ -1,0 +1,167 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package first_preapred_crud;
+import java.sql.*;
+import java.util.*;
+/**
+ *
+ * @author santo
+ */
+public class First_preapred_crud {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        // TODO code application logic here
+        Scanner num = new Scanner(System.in);
+        Scanner str = new Scanner(System.in);
+        
+        try
+        {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/db_first_prepared_crud","root","");
+            System.out.println("Connection is done");
+            PreparedStatement pt = null;
+            
+            int choice,id,data,age,salary;
+            String name;
+            
+            
+            do
+            {
+                System.out.println("\n---Menu--");
+                System.out.println("0.Exit\n1.Display\n2.Insert\n3.Update\n4.Delete\n");
+                System.out.println("Enter your choice :-  ");
+                choice = num.nextInt();
+                
+                switch(choice)
+                {
+                    case 0:
+                        System.out.println("==> Exiting program...\n");
+                        break;
+                        
+                    case 1:
+                        //---Diplaying the data---
+                        
+                        String selectQuery = "SELECT * FROM tbl_user";
+                        pt = conn.prepareStatement(selectQuery);
+                        
+                        ResultSet rs = pt.executeQuery();
+                        
+                        while(rs.next())
+                        {
+                            System.out.println("\nID: "+rs.getInt("id"));
+                            System.out.println("Name: " + rs.getString("name"));
+                            System.out.println("Age: " + rs.getInt("age"));
+                            System.out.println("Salary: " + rs.getString("salary"));
+                        }
+                       
+                        break;
+                        
+                    case 2:
+                        //---Inserting the data---
+                            System.out.println("\nEnter the Name :-  ");
+                            name = str.nextLine();
+                            System.out.println("Enter the Age :-  ");
+                            age = num.nextInt();
+                            System.out.println("Enter the Salary :-  ");
+                            salary = num.nextInt();
+
+
+                            String insertQuery = "INSERT INTO tbl_user (name,age,salary) VALUES (?,?,?)";
+
+                            pt = conn.prepareStatement(insertQuery);
+
+                            pt.setString(1, name);
+                            pt.setInt(2, age);
+                            pt.setInt(3, salary);
+
+                            int rowInserted = pt.executeUpdate();
+
+                            if(rowInserted > 0)
+                            {
+                                System.out.println("==> Data inserted successfuly");
+                            }
+                            else
+                            {
+                                System.out.println("Failed Insertion");
+                            }
+                            
+                            
+                            break;
+                        
+                    case 3:
+                        //---Updating the data---
+                        System.out.println("\nEnter the ID where you want to update the name:-  ");
+                        id = num.nextInt();
+                        System.out.println("\nEnter the Name :-  ");
+                        name = str.nextLine();
+                        
+                        String updateQuery = "UPDATE tbl_user SET name = ? WHERE id = ?";
+                               
+                        pt = conn.prepareStatement(updateQuery);
+                        
+                        pt.setString(1, name);
+                        pt.setInt(2, id);
+                        
+                        data = pt.executeUpdate();
+                        
+                        if(data > 0)
+                        {
+                            System.out.println("==> Data Updated Successfully");
+                        }
+                        else
+                        {
+                            System.out.println("==> Failed Data Updation");
+                        }
+                        break;
+                        
+                    case 4:
+                        //---Deleting the data---
+                        System.out.println("\nEnter the ID :-  ");
+                        id = num.nextInt();
+                        System.out.println("\nEnter the Name :-  ");
+                        name = str.nextLine();
+                        
+                        String deleteQuery = "DELETE FROM tbl_user WHERE id = ? AND  name = ? ";
+                                            //"DELETE FROM tbl_user WHERE id = ? ";
+                               
+                        pt = conn.prepareStatement(deleteQuery);
+                        
+                        pt.setInt(1, id);
+                        pt.setString(2, name);
+                        
+                        
+                        data = pt.executeUpdate();
+                       
+                        if(data > 0)
+                        {
+                            System.out.println("==> Data Deleted Successfully");
+                        }
+                        else
+                        {
+                            System.out.println("==> Failed Data Deletion");
+                        }
+                        
+                        break;
+                        
+                    default:
+                        System.out.println("\n==>    *** Invalid Choice ***");
+                }
+                
+            }while(choice != 0);
+    
+        }
+        catch(Exception e)
+        {
+            System.out.println(e.getMessage());
+        }
+        
+        
+    }
+    
+}
