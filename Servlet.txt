@@ -1,0 +1,670 @@
+1.index.html
+==>
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <form action="saveServlet" method="post">
+        <table>
+            <tr>
+                <td>Name:</td>
+                <td><input type="text" name="name" required></td>
+            </tr> 
+            <tr>
+                <td>Age:</td>
+                <td><input type="text" name="age" required></td>
+            </tr>
+            <tr>
+                <td>City:</td>
+                <td><input type="text" name="city" required></td>
+            </tr> 
+            <tr>
+                <td>Password:</td>
+                <td><input type="password" name="password" required></td>
+            </tr> 
+            <tr>
+                <td colspan="2">
+                    <button type="submit">Insert</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+    <h2>Actions</h2>
+    <a href="viewServlet"><button type="button">View Employees</button></a>
+    <a href="delete.html"><button type="button">Delete Employee</button></a>
+    <a href="update.html"><button type="button">Update Employee</button></a>
+    </body>
+</html>
+--------------------------------------------------------------------------------------
+2.delete.html
+==>
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+    <h2>Delete Employee</h2>
+    <form action="deleteServlet" method="post">
+        <table>
+            <tr>
+                <td>Enter Name:</td>
+                <td><input type="text" name="name" required></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <button type="submit">Delete</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <br>
+    <a href="index.html">⬅ Back to Home</a>
+</body>
+</html>
+------------------------------------------------------------------------------------
+3.update.html
+==>
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+    <h2>Update Employee (by ID)</h2>
+    <form action="updateServlet" method="post">
+        <table>
+            <tr>
+                <td>ID:</td>
+                <td><input type="text" name="id" required></td>
+            </tr> 
+           <tr>
+                <td>Name:</td>
+                <td><input type="text" name="name" required></td>
+            </tr> 
+            <tr>
+                <td>Age:</td>
+                <td><input type="text" name="age" required></td>
+            </tr>
+            <tr>
+                <td>City:</td>
+                <td><input type="text" name="city" required></td>
+            </tr> 
+            <tr>
+                <td>Password:</td>
+                <td><input type="password" name="password" required></td>
+            </tr>        
+            <tr>
+                <td colspan="2">
+                    <button type="submit">Update</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <br>
+    <a href="index.html">⬅ back to Home</a>
+</body>
+</html>
+--------------------------------------------------------------------------------------
+4.viewServlet
+==>
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package employee;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ *
+ * @author santo
+ */
+public class viewServlet extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            /* TODO output your page here. You may use following sample code. */
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet viewServlet</title>");            
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet viewServlet at " + request.getContextPath() + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        }
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        //processRequest(request, response);
+        PrintWriter out = response.getWriter();
+        
+        try
+        {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+
+                Connection con = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/db_crud_servlet_web_application",
+                "root",
+                ""
+        );
+            String displayQuery = "SELECT * FROM tbl_register";
+            
+            PreparedStatement ps = con.prepareStatement(displayQuery);
+            ResultSet rs = ps.executeQuery();
+            
+            while(rs.next())
+            {                
+                out.println("<br><br>Name: " + rs.getString("name") + "&nbsp;&nbsp;&nbsp;");
+                out.println("  Age: " + rs.getString("age")+ "&nbsp;&nbsp;&nbsp;");
+                out.println("  City: " + rs.getString("city")+ "&nbsp;&nbsp;&nbsp;");
+                out.println("  Password: " + rs.getString("password")+ "&nbsp;&nbsp;&nbsp;");
+            }
+            
+            out.println("<br><br>");
+            out.println("<a href='index.html'><button>Back</button></a>");
+
+            con.close();
+            
+                   
+        }
+        catch(Exception ex)
+        {
+            System.out.println(ex.getMessage());
+        }
+        
+        
+    }
+}
+
+============================================================
+5.saveServlet
+==>
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package employee;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ *
+ * @author santo
+ */
+public class saveServlet extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            /* TODO output your page here. You may use following sample code. */
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet saveServlet</title>");            
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet saveServlet at " + request.getContextPath() + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        }
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+       // processRequest(request, response);
+       
+    String name = request.getParameter("name");
+    String age  = request.getParameter("age");
+    String city = request.getParameter("city");
+    String password = request.getParameter("password");
+
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+
+
+        Connection con = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/db_crud_servlet_web_application",
+                "root",
+                ""
+        );
+
+        String insertQuery = "INSERT INTO tbl_register(name, age, city, password) VALUES (?, ?, ?, ?)";
+        PreparedStatement ps = con.prepareStatement(insertQuery);
+
+        ps.setString(1, name);
+        ps.setString(2, age);
+        ps.setString(3, city);
+        ps.setString(4, password);
+
+        int status = ps.executeUpdate();
+
+        if (status > 0) {
+            
+             request.setAttribute("name",name);
+             RequestDispatcher rd = request.getRequestDispatcher("loginn.jsp");
+             rd.forward(request, response);
+             
+             
+            //Redirect only when successful
+            //response.sendRedirect("loginn.jsp");
+           
+            
+        } else {
+            
+            request.setAttribute("Error: ","No data inserted");
+            RequestDispatcher rd = request.getRequestDispatcher("index.html");
+            rd.forward(request, response);
+            
+            //response.getWriter().println("❌ Registration failed!");
+        }
+
+        con.close();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        response.getWriter().println("Database Error: " + e.getMessage());
+    }
+    }
+
+    
+
+}
+
+-------------------------------------------------------------------------
+6.deleteServlet
+==>
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package employee;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ *
+ * @author santo
+ */
+public class deleteServlet extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            /* TODO output your page here. You may use following sample code. */
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet deleteServlet</title>");            
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet deleteServlet at " + request.getContextPath() + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        }
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        //processRequest(request, response);
+        PrintWriter out = response.getWriter();
+        int status = 0;
+        String name = request.getParameter("name");
+        
+        try
+        {
+           Class.forName("com.mysql.cj.jdbc.Driver");
+
+
+        Connection con = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/db_crud_servlet_web_application",
+                "root",
+                ""
+        );
+            String deleteQuery = "DELETE FROM tbl_register WHERE name = ?";
+            
+            PreparedStatement ps = con.prepareStatement(deleteQuery);
+           
+            ps.setString(1,name);
+            
+            
+            status = ps.executeUpdate();
+            if (status > 0) {
+            out.println("<script>");
+            out.println("alert('Record Deleted Successfully!');");
+            out.println("window.location.href='viewServlet';");
+            out.println("</script>");
+        } else {
+            out.println("<script>");
+            out.println("alert('Delete Failed!');");
+            out.println("window.location.href='viewServlet';");
+            out.println("</script>");
+        }
+        }
+        catch(Exception ex)
+        {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    
+}
+-----------------------------------------------------------------
+7.updateServlet
+==>
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package employee;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ *
+ * @author santo
+ */
+public class updateServlet extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            /* TODO output your page here. You may use following sample code. */
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Servlet updateServlet</title>");            
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h1>Servlet updateServlet at " + request.getContextPath() + "</h1>");
+            out.println("</body>");
+            out.println("</html>");
+        }
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        //processRequest(request, response);
+        
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+        
+        String id = request.getParameter("id");
+        String name = request.getParameter("name");
+        String age  = request.getParameter("age");
+        String city = request.getParameter("city");
+        String password = request.getParameter("password");
+        
+        
+        int status = 0;
+        
+        try
+        {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+
+
+            Connection con = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/db_crud_servlet_web_application",
+                    "root",
+                    ""
+            );
+            
+            String updateQuery = "UPDATE tbl_register SET age = ? , city = ? , password = ? ,name = ? WHERE id = ?";
+            
+            PreparedStatement ps = con.prepareStatement(updateQuery);
+            
+            
+            ps.setString(1,age);
+            ps.setString(2,city);
+            ps.setString(3,password);
+            ps.setString(4,name);
+            ps.setString(5,id);
+            
+
+            status = ps.executeUpdate();
+            
+             out.println("<html><body>");
+
+            if (status > 0) {
+                out.println("<script>");
+                out.println("alert('Record Updeted Successfully!');");
+                out.println("</script>");
+            } else {
+               out.println("<script>");
+                out.println("alert('Record Update Failed!');");
+                out.println("</script>");
+            }
+
+            out.println("<br><a href='index.html'><button>Back</button></a>");
+            out.println("</body></html>");
+
+            con.close();
+        }
+        catch(Exception ex)
+        {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}
+-----------------------------------login.jsp-------------------------
+<%-- 
+    Document   : loginn
+    Created on : 25 Nov, 2025, 1:19:50 AM
+    Author     : santo
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>JSP Page</title>
+    </head>
+    <body>
+        <h1>Welcome , ${name} !</h1>
+        <a href="index.html">Home </a>
+    </body>
+</html>
+
+
+
