@@ -1,0 +1,280 @@
+1.index.html'
+==>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student CRUD</title>
+</head>
+<body>
+
+<h2>Student Management</h2>
+
+<a href="addStudent.jsp">Add Student</a>
+<br><br>
+<a href="listStudent.jsp">View Students</a>
+
+</body>
+</html>
+
+-----------------------------------
+2.listStudent.jsp
+==>
+<%@ page import="dao.StudentDao,model.Student,java.util.*" %>
+
+<%
+    StudentDao dao = new StudentDao();
+    List<Student> list = dao.getAllStudents();
+%>
+
+<table border="1">
+<tr>
+  <th>ID</th><th>Name</th><th>Email</th><th>Action</th>
+</tr>
+
+<% for(Student s : list) { %>
+<tr>
+  <td><%= s.getId() %></td>
+  <td><%= s.getName() %></td>
+  <td><%= s.getEmail() %></td>
+  <td>
+    <a href="editStudent.jsp?id=<%=s.getId()%>&name=<%=s.getName()%>&email=<%=s.getEmail()%>">Edit</a>
+    |
+    <a href="StudentServlet?action=delete&id=<%=s.getId()%>">Delete</a>
+  </td>
+</tr>
+<% } %>
+</table>
+
+-----------------------------------
+3.editStudent.jsp
+==><form action="StudentServlet?action=update" method="post">
+    <input type="hidden" name="id" value="<%=request.getParameter("id")%>">
+
+    Name: <input type="text" name="name"
+          value="<%=request.getParameter("name")%>"><br>
+
+    Email: <input type="text" name="email"
+           value="<%=request.getParameter("email")%>"><br>
+
+    <input type="submit" value="Update">
+</form>
+
+--------------------------------------
+4.addStudent.jsp
+==>
+<%-- 
+    Document   : addStudent
+    Created on : Dec 15, 2025, 9:23:07 PM
+    Author     : online
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>JSP Page</title>
+    </head>
+    <body>
+        <form action="StudentServlet?action=insert" method="post">
+    Name: <input type="text" name="name"><br>
+    Email: <input type="text" name="email"><br>
+    <input type="submit" value="Save">
+</form>
+
+    </body>
+</html>
+
+------------------------------------------
+5.StudentServlet----controller
+==>
+package controller;
+
+import dao.StudentDao;
+import model.Student;
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public class StudentServlet extends HttpServlet {
+
+    StudentDao dao = new StudentDao();
+
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String action = request.getParameter("action");
+
+        try {
+            // INSERT
+            if ("insert".equals(action)) {
+                String name = request.getParameter("name");
+                String email = request.getParameter("email");
+
+                Student s = new Student();
+                s.setName(name);
+                s.setEmail(email);
+
+                dao.insertStudent(s);
+                response.sendRedirect("listStudent.jsp");
+            }
+
+            // DELETE
+            else if ("delete".equals(action)) {
+                int id = Integer.parseInt(request.getParameter("id"));
+                dao.deleteStudent(id);
+                response.sendRedirect("listStudent.jsp");
+            }
+
+            // UPDATE
+            else if ("update".equals(action)) {
+                int id = Integer.parseInt(request.getParameter("id"));
+                String name = request.getParameter("name");
+                String email = request.getParameter("email");
+
+                Student s = new Student(id, name, email);
+                dao.updateStudent(s);
+                response.sendRedirect("listStudent.jsp");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // GET
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    // POST
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    @Override
+    public String getServletInfo() {
+        return "Student CRUD Servlet";
+    }
+}
+
+------------------------------
+6.StudentDao------Dao
+==>
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package dao;
+
+import java.sql.*;
+import java.sql.DriverManager;
+import java.util.*;
+import model.Student;
+
+/**
+ *
+ * @author online
+ */
+public class StudentDao {
+    
+  
+
+    
+
+    // INSERT
+    public void insertStudent(Student s) {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/krishna","root","");
+            System.out.println("connection successfully....");
+
+            String sql = "INSERT INTO student(name,email) VALUES (?,?)";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, s.getName());
+            ps.setString(2, s.getEmail());
+
+            ps.executeUpdate();
+            con.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // SELECT ALL
+    public List<Student> getAllStudents() {
+        List<Student> list = new ArrayList<>();
+
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/krishna","root","");
+            System.out.println("connection successfully....");
+
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM student");
+
+            while (rs.next()) {
+                Student s = new Student();
+                s.setId(rs.getInt("id"));
+                s.setName(rs.getString("name"));
+                s.setEmail(rs.getString("email"));
+                list.add(s);
+            }
+            con.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // DELETE
+    public void deleteStudent(int id) {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/krishna","root","");
+        System.out.println("connection successfully....");
+
+            String sql = "DELETE FROM student WHERE id=?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, id);
+            ps.executeUpdate();
+
+            con.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    // UPDATE
+    public void updateStudent(Student s) {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/krishna","root","");
+        System.out.println("connection successfully....");
+            PreparedStatement ps =
+                con.prepareStatement("UPDATE student SET name=?, email=? WHERE id=?");
+            ps.setString(1, s.getName());
+            ps.setString(2, s.getEmail());
+            ps.setInt(3, s.getId());
+
+            ps.executeUpdate();
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+
+-------------------------
+7.model-entity from dataset
